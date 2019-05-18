@@ -1,0 +1,83 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# positional argument default
+# ==============================================================================
+
+@test "OPTIONAL positional argument uses default when no args provided" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_default 'parser_name' 'positional_name' "${BASH_UTIL__TYPE__STRING}" 'hello world'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__OPTIONAL}"
+  
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+
+  [[ "${__test__output}" = 'hello world' ]]
+}
+
+# ==============================================================================
+
+@test "ZERO_OR_MORE positional argument uses default when no args provided" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_default 'parser_name' 'positional_name' "${BASH_UTIL__TYPE__STRING}" 'hello world'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__ZERO_OR_MORE}"
+  
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+
+  [[ "${__test__output}" = 'hello world' ]]
+}
+
+# ==============================================================================
+
+@test "sole PARSER positional argument uses default when no args provided" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_default 'parser_name' 'positional_name' "${BASH_UTIL__TYPE__STRING}" 'hello world'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__PARSER}"
+  
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+
+  [[ "${__test__output}" = 'hello world' ]]
+}

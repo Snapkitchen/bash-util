@@ -1,0 +1,169 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+@test "decorates message if slim disabled" {
+  # setup
+  local message="hello world"
+  local expected_output="TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | hello world"
+
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__print_message \
+    0 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME" \
+    "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "does not decorate message if slim enabled" {
+  # setup
+  local message="hello world"
+  local expected_output="hello world"
+
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__print_message \
+    1 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME" \
+    "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "colorizes message if color enabled" {
+  # setup
+  local message="hello world"
+  local expected_output=
+  expected_output="$(printf "%b%s%b" "${_BASH_UTIL__LOG__COLOR__INFO}" "${message}" "${_BASH_UTIL__LOG__COLOR__RESET}")"
+
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__print_message \
+    1 \
+    1 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME" \
+    "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "does not colorize message if color disabled" {
+  # setup
+  local message="hello world"
+  local expected_output="hello world"
+
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__print_message \
+    1 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME" \
+    "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "prints to stdout when stderr is disabled" {
+  # setup
+  local message="hello world"
+  local expected_output="hello world"
+
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__print_message \
+    1 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME" \
+    "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "prints to stderr when stderr is enabled" {
+  # setup
+  local message="hello world"
+  local expected_output="hello world"
+
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__print_message \
+    1 \
+    0 \
+    1 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME" \
+    "${message}" 2>&1 1>/dev/null)x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}

@@ -1,0 +1,239 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='_bash_util__args__type_is_supported'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# null value
+# ==============================================================================
+
+@test "returns FALSE when value is null" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" ''
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when value is null" {
+  # setup
+  local __test__expected_output="unsupported type: ''"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" '' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# not a supported type
+# ==============================================================================
+
+@test "returns FALSE when value is not a supported type" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" "${BASH_UTIL__TYPE__DICT}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when value is not a supported type" {
+  # setup
+  local __test__expected_output="unsupported type: '${BASH_UTIL__TYPE__DICT}'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" "${BASH_UTIL__TYPE__DICT}" 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# string
+# ==============================================================================
+
+@test "returns TRUE when value is string" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" "${BASH_UTIL__TYPE__STRING}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# bool
+# ==============================================================================
+
+@test "returns TRUE when value is bool" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" "${BASH_UTIL__TYPE__BOOL}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# int
+# ==============================================================================
+
+@test "returns TRUE when value is int" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" "${BASH_UTIL__TYPE__INT}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# list
+# ==============================================================================
+
+@test "returns TRUE when value is list" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" "${BASH_UTIL__TYPE__LIST}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}

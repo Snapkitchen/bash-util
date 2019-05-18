@@ -1,0 +1,174 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__var__print_name'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# invalid var
+# ==============================================================================
+
+@test "returns INVALID when var is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'i-n-v-a-l-i-d'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when var is invalid" {
+  # setup
+  local __test__expected_output="invalid var name: 'i-n-v-a-l-i-d'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'i-n-v-a-l-i-d' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message with custom description when var is invalid" {
+  # setup
+  local __test__expected_output="invalid custom thing: 'i-n-v-a-l-i-d'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'i-n-v-a-l-i-d' 'custom thing' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# print a var name
+# ==============================================================================
+
+@test "returns OK when printing a var name" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  bash_util__list__create 'var_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints a var name" {
+  # setup
+  local __test__expected_output='var_name'
+
+  bash_util__list__create 'var_name'
+
+  # execute
+  local __test__exit_code=
+  local __test__output=
+  {
+    __test__output=$("${__test__command}" 'var_name')
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}

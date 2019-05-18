@@ -1,0 +1,87 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__command__set_stderr_value'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# sets value
+# ==============================================================================
+
+@test "returns OK when setting stderr value" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  bash_util__command__set_stderr_type "${BASH_UTIL__TYPE__STRING}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'hello world'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets stderr value" {
+  local __test__expected_output='hello world'
+  
+  bash_util__command__set_stderr_type "${BASH_UTIL__TYPE__STRING}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'hello world'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  local __test__output="$(bash_util__command__get_stderr_value)"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}

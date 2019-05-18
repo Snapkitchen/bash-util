@@ -1,0 +1,344 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  __test__command='bash_util__list__get_value_indices'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# invalid list
+# ==============================================================================
+
+@test "returns INVALID when list is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'value'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when list is invalid" {
+  # setup
+  local __test__expected_output="invalid list: 'var_name'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'value' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# list value unspecified
+# ==============================================================================
+
+@test "returns INVALID when list value is not provided" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  bash_util__list__assign 'var_name' 'filler' 'stuff' 'hello world'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when list value is not provided" {
+  # setup
+  local __test__expected_output="no value provided"
+
+  bash_util__list__assign 'var_name' 'filler' 'stuff' 'hello world'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# list value not found
+# ==============================================================================
+
+@test "returns NOT_FOUND when list value is not found" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__NOT_FOUND}"
+  
+  bash_util__list__assign 'var_name' 'filler' 'stuff' 'hello world' 'stuff'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'not found'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# list value found
+# ==============================================================================
+
+@test "returns OK when list value is found" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  bash_util__list__assign 'var_name' 'filler' 'stuff' 'hello world' 'stuff'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'stuff'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints indices where list values are found" {
+  # setup
+  local __test__expected_output='1 3'
+  
+  bash_util__list__assign 'var_name' 'filler' 'stuff' 'hello world' 'stuff'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'stuff')"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "indices point to where list values are found" {
+  # setup
+  local __test__expected_output='stuff'
+  
+  bash_util__list__assign 'var_name' 'filler' 'stuff' 'hello world' 'stuff'
+
+  # execute
+  local __test__list_indices=
+  local __test__exit_code=
+  {
+    __test__list_indices=( $("${__test__command}" 'var_name' 'stuff') )
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # get values at indices
+  local __test__output_a=
+  __test__output_a="$(bash_util__list__get_element_value 'var_name' "${__test__list_indices[0]}")"
+  
+  local __test__output_b=
+  __test__output_b="$(bash_util__list__get_element_value 'var_name' "${__test__list_indices[1]}")"
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "indices found: ${__test__list_indices[@]}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output a"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output_a}"
+  echo >&2 "----------------"
+  echo >&2 "output b"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output_b}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${__test__output_a}" = "${__test__expected_output}" ]]
+  [[ "${__test__output_b}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "prints indices where empty value list values are found" {
+  # setup
+  local __test__expected_output='1 3'
+  
+  bash_util__list__assign 'var_name' 'filler' '' 'hello world' ''
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' '')"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "prints indices where list values are found in non-contiguous list" {
+  # setup
+  local __test__expected_output='5 13'
+
+  bash_util__list__create 'var_name'
+  bash_util__list__set_element_value 'var_name' 2 'filler'
+  bash_util__list__set_element_value 'var_name' 5 'stuff'
+  bash_util__list__set_element_value 'var_name' 8 'hello world'
+  bash_util__list__set_element_value 'var_name' 13 'stuff'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'stuff')"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}

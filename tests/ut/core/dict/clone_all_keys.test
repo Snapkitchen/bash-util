@@ -1,0 +1,228 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__dict__clone_all_keys'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# source dict is invalid
+# ==============================================================================
+
+@test "returns INVALID when source dict is invalid" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when source dict is invalid" {
+  # setup
+  local __test__expected_output="invalid dict: 'var_name_src'"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output=$("${__test__command}" 'var_name_src' 'var_name_dest' 2>&1 1>/dev/null)
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# destination dict is invalid
+# ==============================================================================
+
+@test "returns INVALID when destination dict is invalid" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  bash_util__dict__create 'var_name_src'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when destination dict is invalid" {
+  # setup
+  local __test__expected_output="invalid dict: 'var_name_dest'"
+
+  bash_util__dict__create 'var_name_src'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output=$("${__test__command}" 'var_name_src' 'var_name_dest' 2>&1 1>/dev/null)
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# dict with no keys
+# ==============================================================================
+
+@test "returns OK when cloning a dict with no keys" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# dict with keys
+# ==============================================================================
+
+@test "returns OK when cloning a dict with keys" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'string_key_a' "${BASH_UTIL__TYPE__STRING}"
+  bash_util__dict__add_key 'var_name_src' 'string_key_b' "${BASH_UTIL__TYPE__STRING}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones keys" {
+  # setup
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'string_key_a' "${BASH_UTIL__TYPE__STRING}"
+  bash_util__dict__add_key 'var_name_src' 'string_key_b' "${BASH_UTIL__TYPE__STRING}"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_exists 'var_name_dest' 'string_key_a' &&
+  bash_util__dict__key_exists 'var_name_dest' 'string_key_b'
+}

@@ -1,0 +1,194 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__int__max_value'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# invalid int value
+# ==============================================================================
+
+@test "returns INVALID when int value is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 1 4 2 6 Z
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when int value is invalid" {
+  # setup
+  local __test__expected_output="invalid int value: 'Z'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 1 4 2 6 Z 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# no value provided
+# ==============================================================================
+
+@test "returns INVALID when no value provided" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when no value provided" {
+  # setup
+  local __test__expected_output='requires at least 1 argument, received 0'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# prints max value
+# ==============================================================================
+
+@test "returns OK when printing max value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 1 4 2 6 3
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints max value" {
+  # setup
+  local __test__expected_output=6
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 1 4 2 6 3)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}

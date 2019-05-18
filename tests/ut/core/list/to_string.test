@@ -1,0 +1,508 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  __test__command='bash_util__list__to_string'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# invalid list
+# ==============================================================================
+
+@test "returns INVALID when list is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when list is invalid" {
+  # setup
+  local __test__expected_output="invalid list: 'var_name'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 0 'value' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# invalid string initialization
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when string initialization fails" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__list__create 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'i-n-v-a-l-i-d'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when string initialization fails" {
+  # setup
+  local __test__expected_output="failed initializing string with prefix"
+
+  bash_util__list__create 'var_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 0 'value' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# converts to string with defaults
+# ==============================================================================
+
+@test "returns OK when converting to a string with defaults" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "converts to a string with defaults" {
+  # setup
+  local __test__expected_value='one two three four'
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected value"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_value}"
+  echo >&2 "----------------"
+  echo >&2 "value"
+  echo >&2 "----------------"
+  echo >&2 "${!__test__string_name}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${string_name}" = "${__test__expected_value}" ]]
+}
+
+# ==============================================================================
+# converts to string with start prefix
+# ==============================================================================
+
+@test "returns OK when converting to a string with start prefix" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "converts to a string with start prefix" {
+  # setup
+  local __test__expected_value='Xone two three four'
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected value"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_value}"
+  echo >&2 "----------------"
+  echo >&2 "value"
+  echo >&2 "----------------"
+  echo >&2 "${!__test__string_name}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${string_name}" = "${__test__expected_value}" ]]
+}
+
+# ==============================================================================
+# converts to string with end suffix
+# ==============================================================================
+
+@test "returns OK when converting to a string with end suffix" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' '' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "converts to a string with end suffix" {
+  # setup
+  local __test__expected_value='one two three fourX'
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' '' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected value"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_value}"
+  echo >&2 "----------------"
+  echo >&2 "value"
+  echo >&2 "----------------"
+  echo >&2 "${!__test__string_name}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${string_name}" = "${__test__expected_value}" ]]
+}
+
+# ==============================================================================
+# converts to string with item prefix
+# ==============================================================================
+
+@test "returns OK when converting to a string with item prefix" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' '' '' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "converts to a string with item prefix" {
+  # setup
+  local __test__expected_value='Xone Xtwo Xthree Xfour'
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' '' '' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected value"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_value}"
+  echo >&2 "----------------"
+  echo >&2 "value"
+  echo >&2 "----------------"
+  echo >&2 "${!__test__string_name}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${string_name}" = "${__test__expected_value}" ]]
+}
+
+# ==============================================================================
+# converts to string with item suffix
+# ==============================================================================
+
+@test "returns OK when converting to a string with item suffix" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' '' '' '' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "converts to a string with item suffix" {
+  # setup
+  local __test__expected_value='oneX twoX threeX fourX'
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' '' '' '' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected value"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_value}"
+  echo >&2 "----------------"
+  echo >&2 "value"
+  echo >&2 "----------------"
+  echo >&2 "${!__test__string_name}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${string_name}" = "${__test__expected_value}" ]]
+}
+
+# ==============================================================================
+# converts to string with separator
+# ==============================================================================
+
+@test "returns OK when converting to a string with separator" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' '' '' '' '' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "converts to a string with separator" {
+  # setup
+  local __test__expected_value='oneXtwoXthreeXfour'
+
+  bash_util__list__create 'var_name'
+  bash_util__list__append 'var_name' 'one' 'two' 'three' 'four'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'string_name' '' '' '' '' 'X'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected value"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_value}"
+  echo >&2 "----------------"
+  echo >&2 "value"
+  echo >&2 "----------------"
+  echo >&2 "${!__test__string_name}"
+  echo >&2 "----------------"
+  
+  # assert
+  [[ "${string_name}" = "${__test__expected_value}" ]]
+}

@@ -1,0 +1,197 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  __test__command='bash_util__list__copy'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# invalid source list
+# ==============================================================================
+
+@test "returns INVALID when source list is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when source list is invalid" {
+  # setup
+  local __test__expected_output="invalid source list: 'var_name_src'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name_src' 'var_name_dest' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# copy list
+# ==============================================================================
+
+@test "returns OK when copying a list" {
+  # setup
+  local __test__expected_exit_code=0
+  
+  bash_util__list__assign 'var_name_src' 'hello' 'world'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "copies source array into new destination array" {
+  # setup
+  local __test__expected_output__a='hello'
+  local __test__expected_output__b='world'
+
+  bash_util__list__assign 'var_name_src' 'hello' 'world'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get items from list
+  local __test__output_a=
+  __test__output_a="$(bash_util__list__get_element_value 'var_name_dest' 0)"
+  
+  local __test__output_b=
+  __test__output_b="$(bash_util__list__get_element_value 'var_name_dest' 1)"
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "list first value: ${__test__expected_output__a}"
+  echo >&2 "list second value: ${__test__expected_output__b}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "list first value: ${__test__output_a}"
+  echo >&2 "list second value: ${__test__output_b}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output_a}" = "${__test__expected_output__a}" ]]
+  [[ "${__test__output_b}" = "${__test__expected_output__b}" ]]
+}
+
+# ==============================================================================
+
+@test "copies source non-contiguous array into new destination array" {
+  # setup
+  local __test__expected_output__a='hello'
+  local __test__expected_output__b='world'
+
+  bash_util__list__create 'var_name_src'
+  bash_util__list__set_element_value 'var_name_src' 7 'hello'
+  bash_util__list__set_element_value 'var_name_src' 13 'world'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get items from list
+  local __test__output_a=
+  __test__output_a="$(bash_util__list__get_element_value 'var_name_dest' 0)"
+  
+  local __test__output_b=
+  __test__output_b="$(bash_util__list__get_element_value 'var_name_dest' 1)"
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "list first value: ${__test__expected_output__a}"
+  echo >&2 "list second value: ${__test__expected_output__b}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "list first value: ${__test__output_a}"
+  echo >&2 "list second value: ${__test__output_b}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output_a}" = "${__test__expected_output__a}" ]]
+  [[ "${__test__output_b}" = "${__test__expected_output__b}" ]]
+}

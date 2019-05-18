@@ -1,0 +1,61 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# positional argument choices
+# ==============================================================================
+
+@test "positional argument valid choice" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  local __test__choices=('foo' 'bar' 'baz')
+  bash_util__args__set_positional_choices 'parser_name' 'positional_name' '__test__choices'
+  
+  bash_util__args__parse_args 'parser_name' 'foo'
+}
+
+# ==============================================================================
+
+@test "positional argument invalid choice produces error" {
+  local __test__expected_output="invalid choice 'value' for arg 'positional_name' (choose from: 'foo', 'bar', 'baz')"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  local __test__choices=('foo' 'bar' 'baz')
+  bash_util__args__set_positional_choices 'parser_name' 'positional_name' '__test__choices'
+
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__parse_args 'parser_name' 'value' 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}

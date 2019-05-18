@@ -1,0 +1,324 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# positional argument nargs 0
+# ==============================================================================
+
+@test "positional argument nargs 0 produces error" {
+  local __test__expected_output="nargs value must be greater than 0"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+  
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__set_positional_nargs 'parser_name' 'positional_name' 0 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# positional argument nargs 1
+# ==============================================================================
+
+@test "positional argument nargs 1 stores value as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' 1
+  
+  bash_util__args__parse_args 'parser_name' 'value'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value' ]]
+}
+
+# ==============================================================================
+# positional argument nargs 2
+# ==============================================================================
+
+@test "positional argument nargs 2 stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' 2
+  
+  bash_util__args__parse_args 'parser_name' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}
+
+# ==============================================================================
+# positional argument nargs ONE_OR_MORE
+# ==============================================================================
+
+@test "positional argument nargs ONE_OR_MORE stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__ONE_OR_MORE}"
+  
+  bash_util__args__parse_args 'parser_name' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}
+
+# ==============================================================================
+
+@test "positional argument nargs ONE_OR_MORE no args produces error" {
+  local __test__expected_output="the following positional args are required: positional_name"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__ONE_OR_MORE}"
+  
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__parse_args 'parser_name' 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# positional argument nargs ZERO_OR_MORE
+# ==============================================================================
+
+@test "positional argument nargs ZERO_OR_MORE stores no args as empty list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__ZERO_OR_MORE}"
+
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__length "${__test__list}")"
+  
+  [[ "${__test__output}" = '0' ]]
+}
+
+# ==============================================================================
+
+@test "positional argument nargs ZERO_OR_MORE stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__ZERO_OR_MORE}"
+
+  bash_util__args__parse_args 'parser_name' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}
+
+# ==============================================================================
+# positional argument nargs OPTIONAL
+# ==============================================================================
+
+@test "positional argument nargs OPTIONAL stores no args as nothing" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__OPTIONAL}"
+
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__exit_code=
+  {
+    bash_util__args__get_positional_value 'parser_name' 'positional_name'
+  } || {
+    __test__exit_code=$?
+  }
+
+  [[ "${__test__exit_code}" = "${BASH_UTIL__CODE__NOT_FOUND}" ]]
+}
+
+# ==============================================================================
+
+@test "positional argument nargs OPTIONAL stores value directly" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__OPTIONAL}"
+
+  bash_util__args__parse_args 'parser_name' 'value_one'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+}
+
+# ==============================================================================
+# positional argument nargs REMAINDER
+# ==============================================================================
+
+@test "positional argument nargs REMAINDER stores no args as empty list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__REMAINDER}"
+
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__length "${__test__list}")"
+  
+  [[ "${__test__output}" = '0' ]]
+}
+
+# ==============================================================================
+
+@test "positional argument nargs REMAINDER stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__REMAINDER}"
+
+  bash_util__args__parse_args 'parser_name' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}
+
+# ==============================================================================
+# positional argument nargs PARSER
+# ==============================================================================
+
+@test "positional argument nargs PARSER no args produces error" {
+  local __test__expected_output="the following positional args are required: positional_name"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__PARSER}"
+  
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__parse_args 'parser_name' 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+
+@test "positional argument nargs PARSER stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+
+  bash_util__args__set_positional_nargs 'parser_name' 'positional_name' "${BASH_UTIL__ARGS__NARGS__PARSER}"
+
+  bash_util__args__parse_args 'parser_name' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}

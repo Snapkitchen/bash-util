@@ -1,0 +1,45 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# option argument default
+# ==============================================================================
+
+@test "option argument uses default when option is missing" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_default 'parser_name' 'option_name' "${BASH_UTIL__TYPE__STRING}" 'hello world'
+  
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+
+  [[ "${__test__output}" = 'hello world' ]]
+}

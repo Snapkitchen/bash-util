@@ -1,0 +1,165 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+@test "reads multiple input messages" {
+  __test__multiple_messages() {
+    printf '%s\n' "hello"
+    printf '%s\n' "from"
+    printf '%s\n' "the"
+    printf '%s\n' "other"
+    printf '%s\n' "side"
+  }
+
+  local expected_output=
+  expected_output=$(
+  cat <<EOF
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | hello
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | from
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | the
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | other
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | side
+EOF
+)
+
+  actual_output="$(__test__multiple_messages | _bash_util__log__read_message_lines \
+    0 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME")x"
+
+  # debug output
+  echo >&2 "expected output:" 
+  echo >&2 "${expected_output}"
+  echo >&2 "actual output:"
+  echo >&2 "${actual_output%x}"
+
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "processes message with newlines into multiple output lines" {
+  local __newline=$'\n'
+  local message="hello${__newline}world"
+  local expected_output=
+  expected_output=$(
+  cat <<EOF
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | hello
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | world
+EOF
+)
+
+  actual_output="$(printf '%s' "${message}" | _bash_util__log__read_message_lines \
+    0 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME")x"
+
+  # debug output
+  echo >&2 "expected output:" 
+  echo >&2 "${expected_output}"
+  echo >&2 "actual output:"
+  echo >&2 "${actual_output%x}"
+
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "outputs nothing for an empty message" {
+  local message=
+  local expected_output=
+
+  actual_output="$(printf '%s' "${message}" | _bash_util__log__read_message_lines \
+    0 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME")x"
+
+  # debug output
+  echo >&2 "expected output:" 
+  echo >&2 "${expected_output}"
+  echo >&2 "actual output:"
+  echo >&2 "${actual_output%x}"
+
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "prints a newline as a blank message" {
+  local __newline=$'\n'
+  local message="${__newline}"
+  local expected_output="TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | "
+  
+  actual_output="$(printf '%s' "${message}" | _bash_util__log__read_message_lines \
+    0 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME")x"
+
+  # debug output
+  echo >&2 "expected output:" 
+  echo >&2 "${expected_output}"
+  echo >&2 "actual output:"
+  echo >&2 "${actual_output%x}"
+
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "prints two newlines as two blank messages" {
+  local __newline=$'\n'
+  local message="${__newline}${__newline}"
+  local expected_output=
+  expected_output=$(
+  cat <<EOF
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | 
+TIMESTAMP | ${_BASH_UTIL__LOG__TYPE__INFO}    | FILE_NAME | FUNCTION_NAME | 
+EOF
+)
+  
+  actual_output="$(printf '%s' "${message}" | _bash_util__log__read_message_lines \
+    0 \
+    0 \
+    0 \
+    "${_BASH_UTIL__LOG__TYPE__INFO}" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME")x"
+
+  # debug output
+  echo >&2 "expected output:" 
+  echo >&2 "${expected_output}"
+  echo >&2 "actual output:"
+  echo >&2 "${actual_output%x}"
+
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}

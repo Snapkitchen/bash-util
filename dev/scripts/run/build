@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set +H
+
+set -e
+
+set -o pipefail
+
+./dev/scripts/build/runner
+./dev/scripts/build/app

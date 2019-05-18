@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: @package_name@
+Description: utility library for bash 3.2+
+Requires:
+Version: @version@
+Libs: ${libdir}

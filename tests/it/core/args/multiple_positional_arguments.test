@@ -1,0 +1,47 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# multiple positional arguments
+# ==============================================================================
+
+@test "multiple positional arguments store values" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_one'
+  bash_util__args__add_positional 'parser_name' 'positional_two'
+  
+  bash_util__args__parse_args 'parser_name' 'value_one' 'value_two'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_one')"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_two')"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}

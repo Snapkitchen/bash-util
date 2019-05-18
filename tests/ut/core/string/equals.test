@@ -1,0 +1,77 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__string__equals'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# comparing equal strings
+# ==============================================================================
+
+@test "returns TRUE when comparing two equal valid strings" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'hello world' 'hello world'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# comparing different strings
+# ==============================================================================
+
+@test "returns FALSE when comparing two different valid strings" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'hello world' 'foo bar'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}

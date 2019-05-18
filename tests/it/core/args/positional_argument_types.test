@@ -1,0 +1,150 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# positional argument type mismatch
+# ==============================================================================
+
+@test "positional argument type mismatch" {
+  local __test__expected_output="invalid int value: 'value'"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+  
+  bash_util__args__set_positional_type 'parser_name' 'positional_name' "${BASH_UTIL__TYPE__INT}"
+  
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__parse_args 'parser_name' 'value' 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# positional argument type default
+# ==============================================================================
+
+@test "positional argument type default" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+  
+  bash_util__args__parse_args 'parser_name' 'value'
+
+  local __test__type=
+  __test__type="$(bash_util__args__get_positional_value_type 'parser_name' 'positional_name')"
+  
+  [[ "${__test__type}" = "${BASH_UTIL__TYPE__STRING}" ]]
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  [[ "${__test__output}" = 'value' ]]
+}
+
+# ==============================================================================
+# positional argument type string
+# ==============================================================================
+
+@test "positional argument type string" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+  
+  bash_util__args__set_positional_type 'parser_name' 'positional_name' "${BASH_UTIL__TYPE__STRING}"
+  
+  bash_util__args__parse_args 'parser_name' 'value'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  [[ "${__test__output}" = 'value' ]]
+}
+
+# ==============================================================================
+# positional argument type bool
+# ==============================================================================
+
+@test "positional argument type bool" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+  
+  bash_util__args__set_positional_type 'parser_name' 'positional_name' "${BASH_UTIL__TYPE__BOOL}"
+  
+  bash_util__args__parse_args 'parser_name' "${BASH_UTIL__BOOL__TRUE}"
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  [[ "${__test__output}" = "${BASH_UTIL__BOOL__TRUE}" ]]
+}
+
+# ==============================================================================
+# positional argument type int
+# ==============================================================================
+
+@test "positional argument type int" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+  
+  bash_util__args__set_positional_type 'parser_name' 'positional_name' "${BASH_UTIL__TYPE__INT}"
+  
+  bash_util__args__parse_args 'parser_name' '10'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  [[ "${__test__output}" = '10' ]]
+}
+
+# ==============================================================================
+# positional argument type list
+# ==============================================================================
+
+@test "positional argument type list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_positional 'parser_name' 'positional_name'
+  
+  bash_util__args__set_positional_type 'parser_name' 'positional_name' "${BASH_UTIL__TYPE__LIST}"
+  
+  bash_util__list__assign 'list_name' 'value'
+  
+  bash_util__args__parse_args 'parser_name' 'list_name'
+  
+  local __test__list=
+  __test__list="$(bash_util__args__get_positional_value 'parser_name' 'positional_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value' ]]
+}

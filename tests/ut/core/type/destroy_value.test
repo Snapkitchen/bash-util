@@ -1,0 +1,219 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__type__destroy_value'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# invalid type
+# ==============================================================================
+
+@test "returns INVALID when type is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'i-n-v-a-l-i-d'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when type is invalid" {
+  # setup
+  local __test__expected_output="invalid type: 'i-n-v-a-l-i-d'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output=$("${__test__command}" 'var_name' 'i-n-v-a-l-i-d' 2>&1 1>/dev/null)
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# destroys a bool value
+# ==============================================================================
+
+@test "returns OK when destroying a bool value" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  bash_util__bool__assign 'var_name' "${BASH_UTIL__BOOL__TRUE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' "${BASH_UTIL__TYPE__BOOL}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# destroys an int value
+# ==============================================================================
+
+@test "returns OK when destroying an int value" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  bash_util__int__assign 'var_name' 10
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' "${BASH_UTIL__TYPE__INT}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# destroys a list value
+# ==============================================================================
+
+@test "returns OK when destroying a list value" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  bash_util__list__assign 'var_name' 'hello' 'world'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' "${BASH_UTIL__TYPE__LIST}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# destroys a string value
+# ==============================================================================
+
+@test "returns OK when destroying a string value" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  bash_util__string__assign 'var_name' 'hello world'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' "${BASH_UTIL__TYPE__STRING}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# destroys a dict value
+# ==============================================================================
+
+@test "returns OK when destroying a dict value" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name'
+  bash_util__dict__add_key 'var_name' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+  bash_util__dict__set_key_value 'var_name' 'string_key' 'hello world'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' "${BASH_UTIL__TYPE__DICT}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}

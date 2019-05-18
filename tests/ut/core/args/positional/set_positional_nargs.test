@@ -1,0 +1,278 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__args__set_positional_nargs'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# positional does not exist
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when positional does not exist" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name' 1
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when positional does not exist" {
+  # setup
+  local __test__expected_output="failed setting nargs for positional: 'positional_name'"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'positional_name' 1 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# action is already set
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when action is already set" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_positional 'var_name' 'positional_name'
+  bash_util__args__set_positional_action 'var_name' 'positional_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name' 1
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when action is already set" {
+  # setup
+  local __test__expected_output="failed setting nargs for positional: 'positional_name'"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_positional 'var_name' 'positional_name'
+  bash_util__args__set_positional_action 'var_name' 'positional_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'positional_name' 1 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# value is invalid
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when value is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_positional 'var_name' 'positional_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name' 'i n v a l i d'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when value is invalid" {
+  # setup
+  local __test__expected_output="failed setting nargs for positional: 'positional_name'"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_positional 'var_name' 'positional_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'positional_name' 'i n v a l i d' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# sets positional nargs
+# ==============================================================================
+
+@test "returns OK when setting positional nargs" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_positional 'var_name' 'positional_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name' 1
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets positional nargs" {
+  # setup
+  local __test__expected_output=1
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_positional 'var_name' 'positional_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name' 1
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get positional value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_positional_arg_nargs 'var_name' 'positional_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}

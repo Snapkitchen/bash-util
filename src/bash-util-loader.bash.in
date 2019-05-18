@@ -1,0 +1,214 @@
+# ==============================================================================
+#
+# bash-util loader
+#
+# built with:
+#
+#   @@package_name@@
+#
+#   version @@version@@
+#
+#   revision @@revision@@
+#
+#   build @@build_id@@
+#
+# usage:
+#
+#   source bash-util-loader.sh [ARGS]
+#
+# ==============================================================================
+
+# ==============================================================================
+#  constants
+# ==============================================================================
+
+readonly BASH_UTIL_LOADER__CODE__OK=0
+
+readonly BASH_UTIL_LOADER__CODE__GENERAL_ERROR=64
+readonly BASH_UTIL_LOADER__CODE__INVALID=65
+readonly BASH_UTIL_LOADER__CODE__NOT_FOUND=66
+
+# ==============================================================================
+# functions
+# ==============================================================================
+
+bash_util__loader__lib_path() {
+  local package_name="${1}"
+  
+  pkg-config "${package_name}" --variable=libdir
+}
+
+bash_util__loader__version() {
+  local package_name="${1}"
+  
+  pkg-config "${package_name}" --modversion
+}
+
+bash_util__loader__max_version() {
+  local package_name="${1}"
+  local max_version="${2}"
+  
+  pkg-config "${package_name}" --max-version="${max_version}"
+}
+
+bash_util__loader__min_version() {
+  local package_name="${1}"
+  local min_version="${2}"
+  
+  pkg-config "${package_name}" --atleast-version="${min_version}"
+}
+
+bash_util__loader__require_version() {
+  local package_name="${1}"
+  local required_version="${2}"
+  
+  pkg-config "${package_name}" --exact-version="${required_version}"
+}
+
+bash_util__loader__print_help() {
+  printf >&2 '%s\n' ""
+  printf >&2 '%s\n' "Usage:"
+  printf >&2 '%s\n' "  source bash-util-loader.sh [ -m (-M) | -r ] | [ -? | -h ]"
+  printf >&2 '%s\n' ""
+  printf >&2 '%s\n' "Options:"
+  printf >&2 '%s\n' "  -h | -?  print help and exit"
+  printf >&2 '%s\n' ""
+  printf >&2 '%s\n' "  load specific lib file:"
+  printf >&2 '%s\n' "    -l     lib file path"
+  printf >&2 '%s\n' ""
+  printf >&2 '%s\n' "  load package with specific version or range:"
+  printf >&2 '%s\n' "    -p     package name"
+  printf >&2 '%s\n' "    -m     minimum version"
+  printf >&2 '%s\n' "    -M     maximum version"
+  printf >&2 '%s\n' "    -r     required version"
+  printf >&2 '%s\n' ""
+}
+
+# ==============================================================================
+# set variables
+# ==============================================================================
+
+_BASH_UTIL__LOADER__LIB_FILE_PATH=
+_BASH_UTIL__LOADER__PACKAGE_NAME=
+_BASH_UTIL__LOADER__MIN_VERSION=
+_BASH_UTIL__LOADER__MAX_VERSION=
+_BASH_UTIL__LOADER__REQUIRED_VERSION=
+_BASH_UTIL__LOADER__VERSION=
+_BASH_UTIL__LOADER__LIB_DIR=
+_BASH_UTIL__LOADER__LIB_FILE_NAME="bash-util.bash"
+
+BASH_UTIL__LOADER__ACTIVE_FILE_PATH=
+
+# ==============================================================================
+# parse arguments
+# ==============================================================================
+
+OPTIND=1
+while getopts l:p:m:M:r:?h FLAG; do
+  case "${FLAG}" in
+    l)
+      _BASH_UTIL__LOADER__LIB_FILE_PATH="${OPTARG}"
+      ;;
+    p)
+      _BASH_UTIL__LOADER__PACKAGE_NAME="${OPTARG}"
+      ;;
+    m)
+      _BASH_UTIL__LOADER__MIN_VERSION="${OPTARG}"
+      ;;
+    M)
+      _BASH_UTIL__LOADER__MAX_VERSION="${OPTARG}"
+      ;;
+    r)
+      _BASH_UTIL__LOADER__REQUIRED_VERSION="${OPTARG}"
+      ;;
+    \?|h)
+      bash_util__loader__print_help
+      return "${BASH_UTIL_LOADER__CODE__INVALID}"
+      ;;
+  esac
+done
+
+# ==============================================================================
+# package discovery
+# ==============================================================================
+
+# if specific lib path was not specified
+if [[ -z "${_BASH_UTIL__LOADER__LIB_FILE_PATH}" ]]; then
+  # check for package name
+  if [[ -z "${_BASH_UTIL__LOADER__PACKAGE_NAME}" ]]; then
+    echo >&2 "error: bash-util loader -- must specify package name"
+    bash_util__loader__print_help
+    return "${BASH_UTIL_LOADER__CODE__INVALID}"
+  fi
+
+  # check that a min version or required version was specified
+  if [[ -z "${_BASH_UTIL__LOADER__MIN_VERSION}" && -z "${_BASH_UTIL__LOADER__REQUIRED_VERSION}" ]]; then
+    echo >&2 "error: bash-util loader -- must specify at least MIN VERSION or REQUIRED VERSION"
+    bash_util__loader__print_help
+    return "${BASH_UTIL_LOADER__CODE__INVALID}"
+  fi
+
+  # ensure presence of pkg-config
+  if ! command -v pkg-config >/dev/null; then
+    echo >&2 "error: bash-util loader -- pkg-config not found in path"
+    return "${BASH_UTIL_LOADER__CODE__GENERAL_ERROR}"
+  fi
+
+  # get version
+  _BASH_UTIL__LOADER__VERSION="$(bash_util__loader__version "${_BASH_UTIL__LOADER__PACKAGE_NAME}")"
+  if [[ $? -ne 0 || -z "${_BASH_UTIL__LOADER__VERSION}" ]]; then
+    echo >&2 "error: bash-util loader -- failed getting version for package '${_BASH_UTIL__LOADER__PACKAGE_NAME}'"
+    return "${BASH_UTIL_LOADER__CODE__GENERAL_ERROR}"
+  fi
+
+  # validate version
+  # if required version was specified, check against that
+  if [[ -n "${_BASH_UTIL__LOADER__REQUIRED_VERSION}" ]] && \
+      ! bash_util__loader__require_version "${_BASH_UTIL__LOADER__PACKAGE_NAME}" "${_BASH_UTIL__LOADER__REQUIRED_VERSION}"; then
+    echo >&2 "error: bash-util loader -- found version: '${_BASH_UTIL__LOADER__VERSION}'"
+    echo >&2 "error: bash-util loader -- required version '${_BASH_UTIL__LOADER__REQUIRED_VERSION}' not found for package '${_BASH_UTIL__LOADER__PACKAGE_NAME}'"
+    return "${BASH_UTIL_LOADER__CODE__NOT_FOUND}"
+  else
+    # otherwise, check against min version
+    if ! bash_util__loader__min_version "${_BASH_UTIL__LOADER__PACKAGE_NAME}" "${_BASH_UTIL__LOADER__MIN_VERSION}"; then
+      echo >&2 "error: bash-util loader -- found version: '${_BASH_UTIL__LOADER__VERSION}'"
+      echo >&2 "error: bash-util loader -- min version '${_BASH_UTIL__LOADER__MIN_VERSION}' not found for package '${_BASH_UTIL__LOADER__PACKAGE_NAME}'"
+      return "${BASH_UTIL_LOADER__CODE__NOT_FOUND}"
+    fi
+    
+    # also check max version, if provided
+    if [[ -n "${_BASH_UTIL__LOADER__MAX_VERSION}" ]] && \
+      ! bash_util__loader__max_version "${_BASH_UTIL__LOADER__PACKAGE_NAME}" "${_BASH_UTIL__LOADER__MAX_VERSION}"; then
+        echo >&2 "error: bash-util loader -- found version: '${_BASH_UTIL__LOADER__VERSION}'"
+        echo >&2 "error: bash-util loader -- max version '${_BASH_UTIL__LOADER__MAX_VERSION}' exceeded for package '${_BASH_UTIL__LOADER__PACKAGE_NAME}'"
+        return "${BASH_UTIL_LOADER__CODE__NOT_FOUND}"
+    fi
+  fi
+
+  # get lib dir
+  _BASH_UTIL__LOADER__LIB_DIR=$(bash_util__loader__lib_path "${_BASH_UTIL__LOADER__PACKAGE_NAME}")
+  if [[ $? -ne 0 || -z "${_BASH_UTIL__LOADER__LIB_DIR}" ]]; then
+    echo >&2 "error: bash-util loader -- failed getting libdir"
+    return "${BASH_UTIL_LOADER__CODE__GENERAL_ERROR}"
+  fi
+
+  # set lib path
+  _BASH_UTIL__LOADER__LIB_FILE_PATH="${_BASH_UTIL__LOADER__LIB_DIR}/${_BASH_UTIL__LOADER__LIB_FILE_NAME}"
+fi
+
+# ==============================================================================
+# source script from libdir
+# ==============================================================================
+
+if ! source "${_BASH_UTIL__LOADER__LIB_FILE_PATH}"; then
+  echo >&2 "error: bash-util loader -- failed loading lib file: ${_BASH_UTIL__LOADER__LIB_FILE_PATH}"
+  return "${BASH_UTIL_LOADER__CODE__GENERAL_ERROR}"
+fi
+
+# ==============================================================================
+# export active file path
+# ==============================================================================
+
+export BASH_UTIL__LOADER__ACTIVE_FILE_PATH="${_BASH_UTIL__LOADER__LIB_FILE_PATH}"
+
+return "${BASH_UTIL_LOADER__CODE__OK}"

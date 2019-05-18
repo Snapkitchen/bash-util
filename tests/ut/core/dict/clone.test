@@ -1,0 +1,130 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__dict__clone'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# dict is invalid
+# ==============================================================================
+
+@test "returns INVALID when source dict is invalid" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when source dict is invalid" {
+  # setup
+  local __test__expected_output="invalid dict: 'var_name_src'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output=$("${__test__command}" 'var_name_src' 'var_name_dest' 2>&1 1>/dev/null)
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# clones a dict
+# ==============================================================================
+
+@test "returns OK when cloning a dict" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a dict" {
+  # setup
+  bash_util__dict__create 'var_name_src'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__exists 'var_name_dest' &&
+  bash_util__dict__is_valid 'var_name_dest'
+}

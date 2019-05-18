@@ -1,0 +1,60 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# option argument required
+# ==============================================================================
+
+@test "option argument is not required by default" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+  
+  bash_util__args__parse_args 'parser_name'
+}
+
+# ==============================================================================
+
+@test "required option argument produces error when missing" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_required 'parser_name' 'option_name'
+
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__parse_args 'parser_name' 2>&1)"
+  } || {
+    true
+  }
+
+  local __test__expected_output="the following options are required: option_name"
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}

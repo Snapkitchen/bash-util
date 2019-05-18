@@ -1,0 +1,344 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__args__set_option_long_name'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# option does not exist
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when option does not exist" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' '--verbose'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when option does not exist" {
+  # setup
+  local __test__expected_output="failed setting long name for option: 'option_name'"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'option_name' '--verbose' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# action is already set
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when action is already set" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  bash_util__args__set_option_action 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' '--option'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when action is already set" {
+  # setup
+  local __test__expected_output="failed setting long name for option: 'option_name'"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  bash_util__args__set_option_action 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'option_name' '--option' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# value is invalid
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when value is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' '--i n v a l i d'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when value is invalid" {
+  # setup
+  local __test__expected_output="failed setting long name for option: 'option_name'"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'option_name' '--i n v a l i d' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# value already exists in another option
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when value already exists in another option" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name_a'
+  bash_util__args__set_option_long_name 'var_name' 'option_name_a' '--option'
+  bash_util__args__add_option 'var_name' 'option_name_b'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name_b' '--option'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when value already exists in another option" {
+  # setup
+  local __test__expected_output="option name '--option' already in use by option: 'option_name_a'"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name_a'
+  bash_util__args__set_option_long_name 'var_name' 'option_name_a' '--option'
+  bash_util__args__add_option 'var_name' 'option_name_b'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'option_name_b' '--option' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# sets option long name
+# ==============================================================================
+
+@test "returns OK when setting option long name" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' '--option'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets option long name" {
+  # setup
+  local __test__expected_output='--option'
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' '--option'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_long_name 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}

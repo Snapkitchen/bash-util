@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+default_builddir="build"
+target_builddir="${1:-"${default_builddir}"}"
+
+echo ": '
+
+bash-util bootstrap script
+
+usage: eval \$(./bootstrap [BUILD_DIR])
+
+arguments:
+     BUILD_DIR     directory to build in (default: '${default_builddir}')
+
+';"
+
+cat <<EOM
+{
+  autoreconf -i -f &&
+  if [ ! -d "${target_builddir}" ]; then
+    mkdir "${target_builddir}";
+  fi &&
+  cd "${target_builddir}" &&
+  ../configure &&
+  echo &&
+  echo "bootstrap SUCCESS >> run 'make' to get started" &&
+  true;
+} || {
+  echo >&2 &&
+  echo >&2 "bootstrap FAILED >> see above output" &&
+  false;
+}
+EOM
+
+true

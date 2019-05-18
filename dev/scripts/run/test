@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set +H
+
+set -e
+
+set -o pipefail
+
+docker run --rm bash-util/app bash -c 'make check -j8 || cat test-suite.log'

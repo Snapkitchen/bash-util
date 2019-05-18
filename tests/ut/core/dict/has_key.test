@@ -1,0 +1,196 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__dict__has_key'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# dict is invalid
+# ==============================================================================
+
+@test "returns INVALID when dict is invalid" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'key_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when dict is invalid" {
+  # setup
+  local __test__expected_output="invalid dict: 'var_name'"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output=$("${__test__command}" 'var_name' 'key_name' 2>&1 1>/dev/null)
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# key name is invalid
+# ==============================================================================
+
+@test "returns INVALID when key name is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  bash_util__dict__create 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'i-n-v-a-l-i-d'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when key name is invalid" {
+  # setup
+  local __test__expected_output="invalid key name: 'i-n-v-a-l-i-d'"
+
+  bash_util__dict__create 'var_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'i-n-v-a-l-i-d' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# key exists
+# ==============================================================================
+
+@test "returns TRUE when key exists" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+
+  bash_util__dict__create 'var_name'
+  bash_util__dict__add_key 'var_name' 'key_name' "${BASH_UTIL__TYPE__STRING}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'key_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# key does not exist
+# ==============================================================================
+
+@test "returns FALSE when key does not exist" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+
+  bash_util__dict__create 'var_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'key_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}

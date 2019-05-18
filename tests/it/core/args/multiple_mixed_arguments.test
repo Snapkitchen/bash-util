@@ -1,0 +1,88 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# multiple mixed arguments
+# ==============================================================================
+
+@test "option argument between positional arguments" {
+  bash_util__args__create_parser 'parser_name'
+
+  bash_util__args__add_option 'parser_name' 'option_one'
+
+  bash_util__args__set_option_long_name 'parser_name' 'option_one' '--one'
+
+  bash_util__args__add_positional 'parser_name' 'positional_one'
+
+  bash_util__args__add_positional 'parser_name' 'positional_two'
+  
+  bash_util__args__parse_args 'parser_name' 'pos_one' '--one' 'opt_one' 'pos_two'
+
+  local __test__output=
+
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_one')"
+  
+  [[ "${__test__output}" = 'pos_one' ]]
+
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_one')"
+  
+  [[ "${__test__output}" = 'opt_one' ]]
+
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_two')"
+  
+  [[ "${__test__output}" = 'pos_two' ]]
+}
+
+# ==============================================================================
+
+@test "positional argument between option arguments" {
+  bash_util__args__create_parser 'parser_name'
+
+  bash_util__args__add_option 'parser_name' 'option_one'
+
+  bash_util__args__set_option_long_name 'parser_name' 'option_one' '--one'
+
+  bash_util__args__add_option 'parser_name' 'option_two'
+
+  bash_util__args__set_option_long_name 'parser_name' 'option_two' '--two'
+
+  bash_util__args__add_positional 'parser_name' 'positional_one'
+  
+  bash_util__args__parse_args 'parser_name' '--one' 'opt_one' 'pos_one' '--two' 'opt_two'
+
+  local __test__output=
+
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_one')"
+  
+  [[ "${__test__output}" = 'opt_one' ]]
+
+  __test__output="$(bash_util__args__get_positional_value 'parser_name' 'positional_one')"
+  
+  [[ "${__test__output}" = 'pos_one' ]]
+
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_two')"
+  
+  [[ "${__test__output}" = 'opt_two' ]]
+}

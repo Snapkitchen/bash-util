@@ -1,0 +1,254 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__args__add_positional'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# key exists
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when positional exists" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_positional 'var_name' 'positional_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when positional exists" {
+  # setup
+  local __test__expected_output="failed adding positional: 'positional_name'"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_positional 'var_name' 'positional_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'positional_name' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# adds a positional
+# ==============================================================================
+
+@test "returns OK when adding a positional" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "adds the positional key as a dict" {
+  # setup
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_is_type 'var_name__ARGS__PARSER__KEY__POSITIONAL__VALUE' 'positional_name' "${BASH_UTIL__TYPE__DICT}"
+}
+
+# ==============================================================================
+
+@test "creates the positional dict" {
+  # setup
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__exists 'var_name__ARGS__PARSER__KEY__POSITIONAL__VALUE__KEY__positional_name__VALUE'
+}
+
+# ==============================================================================
+
+@test "adds the action key as a string" {
+  # setup
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_is_type 'var_name__ARGS__PARSER__KEY__POSITIONAL__VALUE__KEY__positional_name__VALUE' 'action' "${BASH_UTIL__TYPE__STRING}"
+}
+
+# ==============================================================================
+
+@test "adds the nargs key as a string" {
+  # setup
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_is_type 'var_name__ARGS__PARSER__KEY__POSITIONAL__VALUE__KEY__positional_name__VALUE' 'nargs' "${BASH_UTIL__TYPE__STRING}"
+}
+
+# ==============================================================================
+
+@test "adds the type key as a string" {
+  # setup
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_is_type 'var_name__ARGS__PARSER__KEY__POSITIONAL__VALUE__KEY__positional_name__VALUE' 'type' "${BASH_UTIL__TYPE__STRING}"
+}
+
+# ==============================================================================
+
+@test "adds the choices key as a list" {
+  # setup
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'positional_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_is_type 'var_name__ARGS__PARSER__KEY__POSITIONAL__VALUE__KEY__positional_name__VALUE' 'choices' "${BASH_UTIL__TYPE__LIST}"
+}

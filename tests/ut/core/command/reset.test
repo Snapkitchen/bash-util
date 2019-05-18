@@ -1,0 +1,226 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__command__reset'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+
+# ==============================================================================
+# resets all values
+# ==============================================================================
+
+@test "returns OK when resetting values" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "resets stderr type" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  bash_util__command__set_stderr_type "${BASH_UTIL__TYPE__STRING}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  local __test__assert_exit_code=
+  {
+    bash_util__type__value_is_set 'BASH_UTIL__COMMAND__STDERR__TYPE' "${BASH_UTIL__TYPE__STRING}"
+    __test__assert_exit_code=$?
+  } || {
+    __test__assert_exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "assert exit code: ${__test__assert_exit_code}"
+  
+  # assert
+  [[ "${__test__assert_exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "resets stderr value" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  bash_util__command__set_stderr_type "${BASH_UTIL__TYPE__STRING}"
+  bash_util__command__set_stderr_value 'hello world'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # set stderr type again or it will bail on unset type
+  bash_util__command__set_stderr_type "${BASH_UTIL__TYPE__STRING}"
+
+  local __test__assert_exit_code=
+  {
+    bash_util__type__value_is_set 'BASH_UTIL__COMMAND__STDERR__VALUE' "${BASH_UTIL__TYPE__STRING}"
+    __test__assert_exit_code=$?
+  } || {
+    __test__assert_exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "assert exit code: ${__test__assert_exit_code}"
+  
+  # assert
+  [[ "${__test__assert_exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "resets stdout type" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  bash_util__command__set_stdout_type "${BASH_UTIL__TYPE__STRING}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  local __test__assert_exit_code=
+  {
+    bash_util__type__value_is_set 'BASH_UTIL__COMMAND__STDOUT__TYPE' "${BASH_UTIL__TYPE__STRING}"
+    __test__assert_exit_code=$?
+  } || {
+    __test__assert_exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "assert exit code: ${__test__assert_exit_code}"
+  
+  # assert
+  [[ "${__test__assert_exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "resets stdout value" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  bash_util__command__set_stdout_type "${BASH_UTIL__TYPE__STRING}"
+  bash_util__command__set_stdout_value 'hello world'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # set stdout type again or it will bail on unset type
+  bash_util__command__set_stdout_type "${BASH_UTIL__TYPE__STRING}"
+
+  local __test__assert_exit_code=
+  {
+    bash_util__type__value_is_set 'BASH_UTIL__COMMAND__STDOUT__VALUE' "${BASH_UTIL__TYPE__STRING}"
+    __test__assert_exit_code=$?
+  } || {
+    __test__assert_exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "assert exit code: ${__test__assert_exit_code}"
+  
+  # assert
+  [[ "${__test__assert_exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "resets status code" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  bash_util__command__set_status 0
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  local __test__assert_exit_code=
+  {
+    bash_util__type__value_is_set 'BASH_UTIL__COMMAND__STATUS' "${BASH_UTIL__TYPE__INT}"
+    __test__assert_exit_code=$?
+  } || {
+    __test__assert_exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "assert exit code: ${__test__assert_exit_code}"
+  
+  # assert
+  [[ "${__test__assert_exit_code}" -eq "${__test__expected_exit_code}" ]]
+}

@@ -1,0 +1,46 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+@test "decorates a message" {
+  # setup
+  local message="hello world"
+  local expected_output="TIMESTAMP | MESSAGE_TYPE | FILE_NAME | FUNCTION_NAME | hello world"
+  
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__decorate_message \
+    "MESSAGE_TYPE" \
+    "TIMESTAMP" \
+    "FILE_NAME" \
+    "FUNCTION_NAME" \
+    "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  # assert
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}

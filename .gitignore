@@ -1,0 +1,21 @@
+# osx spotlight
+.DS_Store
+
+# build files
+/aclocal.m4
+/configure
+/Makefile
+/Makefile.in
+/autom4te.cache/
+/build-aux/*
+/build/
+/config.log
+/config.status
+/.PACKAGE_REVISION
+
+# allow tap driver
+!/build-aux/tap-driver.sh
+
+# ignore ide files
+/.vscode/*
+/.vscode/

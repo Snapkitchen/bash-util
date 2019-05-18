@@ -1,0 +1,777 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__dict__clone_key'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# source dict key is missing
+# ==============================================================================
+
+@test "returns NOT_FOUND when source dict key is missing" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__NOT_FOUND}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'string_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when source dict key is missing" {
+  # setup
+  local __test__expected_output="key not found: 'string_key'"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output=$("${__test__command}" 'var_name_src' 'string_key' 'var_name_dest' 2>&1 1>/dev/null)
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# specific destination key name
+# ==============================================================================
+
+@test "returns OK when cloning a string key to a specific destination key" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'string_key' 'var_name_dest' 'custom_key'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a string key with no value" {
+  # setup
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'string_key' 'var_name_dest' 'custom_key'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_exists 'var_name_dest' 'custom_key'
+}
+
+# ==============================================================================
+# bool key with no value
+# ==============================================================================
+
+@test "returns OK when cloning a bool key with no value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'bool_key' "${BASH_UTIL__TYPE__BOOL}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'bool_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a bool key with no value" {
+  # setup
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'bool_key' "${BASH_UTIL__TYPE__BOOL}"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'bool_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_exists 'var_name_dest' 'bool_key'
+}
+
+# ==============================================================================
+# bool key with value
+# ==============================================================================
+
+@test "returns OK when cloning a bool key with value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'bool_key' "${BASH_UTIL__TYPE__BOOL}"
+  bash_util__dict__set_key_value 'var_name_src' 'bool_key' "${BASH_UTIL__BOOL__TRUE}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'bool_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a bool key with value" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__BOOL__TRUE}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'bool_key' "${BASH_UTIL__TYPE__BOOL}"
+  bash_util__dict__set_key_value 'var_name_src' 'bool_key' "${BASH_UTIL__BOOL__TRUE}"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'bool_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  local __test__output=
+  __test__output="$(bash_util__dict__get_key_value 'var_name_dest' 'bool_key')"
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# dict key with no value
+# ==============================================================================
+
+@test "returns OK when cloning a dict key with no value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'dict_key' "${BASH_UTIL__TYPE__DICT}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'dict_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a dict key with no value" {
+  # setup
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'dict_key' "${BASH_UTIL__TYPE__DICT}"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'dict_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_exists 'var_name_dest' 'dict_key'
+}
+
+# ==============================================================================
+# dict key with value
+# ==============================================================================
+
+@test "returns OK when cloning a dict key with value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'dict_key' "${BASH_UTIL__TYPE__DICT}"
+
+  bash_util__dict__create 'nested_dict'
+  bash_util__dict__add_key 'nested_dict' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+  bash_util__dict__set_key_value 'nested_dict' 'string_key' 'hello world'
+
+  bash_util__dict__set_key_value 'var_name_src' 'dict_key' 'nested_dict'
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'dict_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a dict key with value" {
+  # setup
+  local __test__expected_output='hello world'
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'dict_key' "${BASH_UTIL__TYPE__DICT}"
+
+  bash_util__dict__create 'nested_dict'
+  bash_util__dict__add_key 'nested_dict' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+  bash_util__dict__set_key_value 'nested_dict' 'string_key' 'hello world'
+
+  bash_util__dict__set_key_value 'var_name_src' 'dict_key' 'nested_dict'
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'dict_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  local __test__nested_dict_name=
+  __test__nested_dict_name="$(bash_util__dict__get_key_value 'var_name_dest' 'dict_key')"
+
+  local __test__output=
+  __test__output="$(bash_util__dict__get_key_value "${__test__nested_dict_name}" 'string_key')"
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# int key with no value
+# ==============================================================================
+
+@test "returns OK when cloning an int key with no value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'int_key' "${BASH_UTIL__TYPE__INT}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'int_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones an int key with no value" {
+  # setup
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'int_key' "${BASH_UTIL__TYPE__INT}"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'int_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_exists 'var_name_dest' 'int_key'
+}
+
+# ==============================================================================
+# int key with value
+# ==============================================================================
+
+@test "returns OK when cloning an int key with value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'int_key' "${BASH_UTIL__TYPE__INT}"
+  bash_util__dict__set_key_value 'var_name_src' 'int_key' 10
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'int_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones an int key with value" {
+  # setup
+  local __test__expected_output=10
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'int_key' "${BASH_UTIL__TYPE__INT}"
+  bash_util__dict__set_key_value 'var_name_src' 'int_key' 10
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'int_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  local __test__output=
+  __test__output="$(bash_util__dict__get_key_value 'var_name_dest' 'int_key')"
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# list key with no value
+# ==============================================================================
+
+@test "returns OK when cloning a list key with no values" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'list_key' "${BASH_UTIL__TYPE__LIST}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'list_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a list key with no values" {
+  # setup
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'list_key' "${BASH_UTIL__TYPE__LIST}"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'list_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_exists 'var_name_dest' 'list_key'
+}
+
+# ==============================================================================
+# list key with value
+# ==============================================================================
+
+@test "returns OK when cloning a list key with values" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'list_key' "${BASH_UTIL__TYPE__LIST}"
+
+  bash_util__list__assign 'list_name' 'hello' 'world'
+
+  bash_util__dict__set_key_value 'var_name_src' 'list_key' 'list_name'
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'list_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a list key with values" {
+  # setup
+  local __test__expected_output='world'
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'list_key' "${BASH_UTIL__TYPE__LIST}"
+
+  bash_util__list__assign 'list_name' 'hello' 'world'
+
+  bash_util__dict__set_key_value 'var_name_src' 'list_key' 'list_name'
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'list_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  local __test__list_name="$(bash_util__dict__get_key_value 'var_name_dest' 'list_key')"
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list_name}" 1)"
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# string key with no value
+# ==============================================================================
+
+@test "returns OK when cloning a string key with no value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'string_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a string key with no value" {
+  # setup
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'string_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_exists 'var_name_dest' 'string_key'
+}
+
+# ==============================================================================
+# string key with value
+# ==============================================================================
+
+@test "returns OK when cloning a string key with value" {
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+  bash_util__dict__set_key_value 'var_name_src' 'string_key' 'hello world'
+
+  bash_util__dict__create 'var_name_dest'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'string_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "clones a string key with value" {
+  # setup
+  local __test__expected_output='hello world'
+
+  bash_util__dict__create 'var_name_src'
+  bash_util__dict__add_key 'var_name_src' 'string_key' "${BASH_UTIL__TYPE__STRING}"
+  bash_util__dict__set_key_value 'var_name_src' 'string_key' 'hello world'
+
+  bash_util__dict__create 'var_name_dest'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_src' 'string_key' 'var_name_dest'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  local __test__output=
+  __test__output="$(bash_util__dict__get_key_value 'var_name_dest' 'string_key')"
+  
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}

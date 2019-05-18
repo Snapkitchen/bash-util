@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+#
+# @@package_name@@
+#
+# version @@version@@
+#
+# revision @@revision@@
+#
+# build @@build_id@@
+#
+
+# ==============================================================================
+# reload guard
+# ==============================================================================
+
+# check if info function already exists
+if declare -f bash_util__global__info >/dev/null; then
+  if declare -f bash_util__log__error >/dev/null; then
+    # if so, use error logging function, if available
+    echo "bash util already loaded: $(bash_util__global__info)" | bash_util__log__error
+  else
+    # otherwise, print to stderr
+    echo >&2 "error: bash util already loaded: $(bash_util__global__info)"
+  fi
+  # return (exit would close the sourcing script's session)
+  return 64
+fi
+
+# ==============================================================================
+# shell settings
+# ==============================================================================
+
+# disable history expansion so exclamation marks don't break commands
+set +H
+
+# optionally enable tracing
+if [[ -n "${BASH_UTIL__TRACE+x}" ]]
+then
+  set -x
+fi
+
+# ==============================================================================
+# global variables
+# ==============================================================================
+
+readonly _BASH_UTIL__GLOBAL__PACKAGE="@@package_name@@"
+readonly _BASH_UTIL__GLOBAL__VERSION="@@version@@"
+readonly _BASH_UTIL__GLOBAL__REVISION="@@revision@@"
+readonly _BASH_UTIL__GLOBAL__BUILD="@@build_id@@"
+
+# ==============================================================================
+# global functions
+# ==============================================================================
+
+bash_util__global__package() {
+  printf '%s\n' "${_BASH_UTIL__GLOBAL__PACKAGE}"
+}
+
+bash_util__global__version() {
+  printf '%s\n' "${_BASH_UTIL__GLOBAL__VERSION}"
+}
+
+bash_util__global__revision() {
+  printf '%s\n' "${_BASH_UTIL__GLOBAL__REVISION}"
+}
+
+bash_util__global__build() {
+  printf '%s\n' "${_BASH_UTIL__GLOBAL__BUILD}"
+}
+
+bash_util__global__info() {
+  printf '%s version %s\n  revision %s\n  build %s\n' "${_BASH_UTIL__GLOBAL__PACKAGE}" "${_BASH_UTIL__GLOBAL__VERSION}" "${_BASH_UTIL__GLOBAL__REVISION}" "${_BASH_UTIL__GLOBAL__BUILD}"
+}
+
+# ==============================================================================
+# core components
+# ==============================================================================
+
+%%core/args/parser_core/_get_values.bash%%
+
+%%core/args/parser_core/_parse_known_args.bash%%
+
+%%core/args/parser_core/_parse_option.bash%%
+
+%%core/args/api.bash%%
+
+%%core/args/constants.bash%%
+
+%%core/args/helpers.bash%%
+
+%%core/bool.bash%%
+
+%%core/code.bash%%
+
+%%core/command.bash%%
+
+%%core/datetime.bash%%
+
+%%core/dict.bash%%
+
+%%core/int.bash%%
+
+%%core/list.bash%%
+
+%%core/log.bash%%
+
+%%core/string.bash%%
+
+%%core/type.bash%%
+
+%%core/var.bash%%
+
+# ==============================================================================
+# extension modules
+# ==============================================================================
+
+%%common.bash%%
+
+%%importer.bash%%
+
+# ==============================================================================
+# main
+# ==============================================================================
+
+return "${BASH_UTIL__CODE__OK}"

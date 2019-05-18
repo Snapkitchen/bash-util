@@ -1,0 +1,223 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# option argument action mismatch
+# ==============================================================================
+
+@test "option argument action mismatch produces error" {
+  local __test__expected_output="invalid action: 'invalid'"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+  
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__set_option_action 'parser_name' 'option_name' 'invalid' 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# option argument action default
+# ==============================================================================
+
+@test "option argument action default stores value" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+  
+  bash_util__args__parse_args 'parser_name' '-o' 'value'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  [[ "${__test__output}" = 'value' ]]
+}
+
+# ==============================================================================
+# option argument action STORE
+# ==============================================================================
+
+@test "option argument action STORE stores value" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_action 'parser_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+  
+  bash_util__args__parse_args 'parser_name' '-o' 'value'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  [[ "${__test__output}" = 'value' ]]
+}
+
+# ==============================================================================
+# option argument action STORE_CONST
+# ==============================================================================
+
+@test "option argument action STORE_CONST stores const when no args provided" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_const 'parser_name' 'option_name' "${BASH_UTIL__TYPE__STRING}" 'hello world'
+  
+  bash_util__args__set_option_action 'parser_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_CONST}"
+
+  bash_util__args__parse_args 'parser_name' '-o'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  [[ "${__test__output}" = 'hello world' ]]
+}
+
+# ==============================================================================
+# option argument action STORE_TRUE
+# ==============================================================================
+
+@test "option argument action STORE_TRUE stores TRUE when no args provided" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+  
+  bash_util__args__set_option_action 'parser_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_TRUE}"
+
+  bash_util__args__parse_args 'parser_name' '-o'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  [[ "${__test__output}" = "${BASH_UTIL__BOOL__TRUE}" ]]
+}
+
+# ==============================================================================
+# option argument action STORE_FALSE
+# ==============================================================================
+
+@test "option argument action STORE_FALSE stores FALSE when no args provided" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+  
+  bash_util__args__set_option_action 'parser_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_FALSE}"
+
+  bash_util__args__parse_args 'parser_name' '-o'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  [[ "${__test__output}" = "${BASH_UTIL__BOOL__FALSE}" ]]
+}
+
+# ==============================================================================
+# option argument action COUNT
+# ==============================================================================
+
+@test "option argument action COUNT stores 1 when no args provided" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+  
+  bash_util__args__set_option_action 'parser_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__COUNT}"
+
+  bash_util__args__parse_args 'parser_name' '-o'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  [[ "${__test__output}" = "1" ]]
+}
+
+# ==============================================================================
+# option argument action APPEND
+# ==============================================================================
+
+@test "option argument action APPEND stores value in dict" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+  
+  bash_util__args__set_option_action 'parser_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__APPEND}"
+
+  bash_util__args__parse_args 'parser_name' '-o' 'value'
+
+  local __test__dict=
+  __test__dict="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+
+  local __test__output=
+  __test__output="$(bash_util__dict__get_key_value "${__test__dict}" 'value0')"
+
+  [[ "${__test__output}" = 'value' ]]
+}
+
+# ==============================================================================
+# option argument action APPEND_CONST
+# ==============================================================================
+
+@test "option argument action APPEND_CONST stores const in dict when no args provided" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_const 'parser_name' 'option_name' "${BASH_UTIL__TYPE__STRING}" 'hello world'
+  
+  bash_util__args__set_option_action 'parser_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__APPEND_CONST}"
+
+  bash_util__args__parse_args 'parser_name' '-o'
+
+  local __test__dict=
+  __test__dict="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+
+  local __test__output=
+  __test__output="$(bash_util__dict__get_key_value "${__test__dict}" 'value0')"
+
+  [[ "${__test__output}" = 'hello world' ]]
+}

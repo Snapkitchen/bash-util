@@ -1,0 +1,341 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  __test__command='bash_util__list__equals'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# invalid left list
+# ==============================================================================
+
+@test "returns INVALID when left list is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  bash_util__list__create 'var_name_right'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_left' 'var_name_right'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when left list is invalid" {
+  # setup
+  local __test__expected_output="invalid left list: 'var_name_left'"
+
+  bash_util__list__create 'var_name_right'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name_left' 'var_name_right' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# invalid right list
+# ==============================================================================
+
+@test "returns INVALID when right list is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__INVALID}"
+
+  bash_util__list__create 'var_name_left'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_left' 'var_name_right'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when right list is invalid" {
+  # setup
+  local __test__expected_output="invalid right list: 'var_name_right'"
+
+  bash_util__list__create 'var_name_left'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name_left' 'var_name_right' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# lists are equal
+# ==============================================================================
+
+@test "returns TRUE when both lists are equal in the same order" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+
+  bash_util__list__assign 'var_name_a' 'hello' 'world'
+  bash_util__list__assign 'var_name_b' 'hello' 'world'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_a' 'var_name_b'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "returns TRUE when both lists are equal in a different order" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+
+  bash_util__list__assign 'var_name_a' 'hello' 'world'
+  bash_util__list__assign 'var_name_b' 'world' 'hello'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_a' 'var_name_b'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "returns TRUE when both lists are equal in a different order with repeating values" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+
+  bash_util__list__assign 'var_name_a' 'hello' 'world' 'hello' 'hello'
+  bash_util__list__assign 'var_name_b' 'world' 'hello' 'hello' 'hello'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_a' 'var_name_b'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "returns TRUE when both lists are equal in a different order with non-contiguous repeating values" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+
+  bash_util__list__create 'var_name_a'
+  bash_util__list__set_element_value 'var_name_a' 3 'hello'
+  bash_util__list__set_element_value 'var_name_a' 5 'world'
+  bash_util__list__set_element_value 'var_name_a' 8 'hello'
+  bash_util__list__set_element_value 'var_name_a' 12 'soup'
+
+  bash_util__list__create 'var_name_b' 'world' 'soup' 'hello' 'hello'
+  bash_util__list__set_element_value 'var_name_b' 7 'world'
+  bash_util__list__set_element_value 'var_name_b' 14 'soup'
+  bash_util__list__set_element_value 'var_name_b' 28 'hello'
+  bash_util__list__set_element_value 'var_name_b' 84 'hello'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_a' 'var_name_b'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "returns TRUE when both lists are empty" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  
+  bash_util__list__assign 'var_name_a'
+  bash_util__list__assign 'var_name_b'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_a' 'var_name_b'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# lists are not equal
+# ==============================================================================
+
+@test "returns FALSE when lists are different lengths" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  bash_util__list__assign 'var_name_a' 'hello'
+  bash_util__list__assign 'var_name_b' 'hello' 'world'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_a' 'var_name_b'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "returns FALSE when lists have different values" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  
+  bash_util__list__assign "var_name_a" 'hello' 'foo'
+  bash_util__list__assign "var_name_b" 'hello' 'bar'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name_a' 'var_name_b'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}

@@ -1,0 +1,927 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__args__set_option_action'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# option does not exist
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when option does not exist" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when option does not exist" {
+  # setup
+  local __test__expected_output="failed setting action for option: 'option_name'"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}" 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# action is already set
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when action is already set" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  bash_util__args__set_option_action 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when action is already set" {
+  # setup
+  local __test__expected_output="failed setting action for option: 'option_name'"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  bash_util__args__set_option_action 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}" 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# value is invalid
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when value is invalid" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' 'invalid'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when value is invalid" {
+  # setup
+  local __test__expected_output="failed setting action for option: 'option_name'"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 'option_name' 'invalid' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# setting action to APPEND
+# ==============================================================================
+
+@test "returns OK when setting action to APPEND" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__APPEND}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets action to APPEND" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__ARGS__ACTION__APPEND}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__APPEND}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_action 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# setting action to APPEND_CONST
+# ==============================================================================
+
+@test "returns OK when setting action to APPEND_CONST" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__APPEND_CONST}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets action to APPEND_CONST" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__ARGS__ACTION__APPEND_CONST}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__APPEND_CONST}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_action 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "sets nargs to 0 with APPEND_CONST" {
+  # setup
+  local __test__expected_output=0
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__APPEND_CONST}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_nargs 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# setting action to COUNT
+# ==============================================================================
+
+@test "returns OK when setting action to COUNT" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__COUNT}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets action to COUNT" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__ARGS__ACTION__COUNT}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__COUNT}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_action 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "sets nargs to 0 with COUNT" {
+  # setup
+  local __test__expected_output=0
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__COUNT}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_nargs 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# setting action to STORE
+# ==============================================================================
+
+@test "returns OK when setting action to STORE" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets action to STORE" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__ARGS__ACTION__STORE}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_action 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# setting action to STORE_CONST
+# ==============================================================================
+
+@test "returns OK when setting action to STORE_CONST" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_CONST}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets action to STORE_CONST" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__ARGS__ACTION__STORE_CONST}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_CONST}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_action 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "sets nargs to 0 with STORE_CONST" {
+  # setup
+  local __test__expected_output=0
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_CONST}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_nargs 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# setting action to STORE_FALSE
+# ==============================================================================
+
+@test "returns OK when setting action to STORE_FALSE" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_FALSE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets action to STORE_FALSE" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__ARGS__ACTION__STORE_FALSE}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_FALSE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_action 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "sets nargs to 0 with STORE_FALSE" {
+  # setup
+  local __test__expected_output=0
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_FALSE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_nargs 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "sets default to true with STORE_FALSE" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__BOOL__TRUE}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_FALSE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_default 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+# setting action to STORE_TRUE
+# ==============================================================================
+
+@test "returns OK when setting action to STORE_TRUE" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+  
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_TRUE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+  
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+  
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "sets action to STORE_TRUE" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__ARGS__ACTION__STORE_TRUE}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_TRUE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_action 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "sets nargs to 0 with STORE_TRUE" {
+  # setup
+  local __test__expected_output=0
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_TRUE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_nargs 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}
+
+# ==============================================================================
+
+@test "sets default to false with STORE_TRUE" {
+  # setup
+  local __test__expected_output="${BASH_UTIL__BOOL__FALSE}"
+  
+  bash_util__args__create_parser 'var_name'
+  bash_util__args__add_option 'var_name' 'option_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'option_name' "${BASH_UTIL__ARGS__ACTION__STORE_TRUE}"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # get option value
+  local __test__output=
+  __test__output="$(_bash_util__args__get_option_default 'var_name' 'option_name')"
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "actual output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = "${__test__expected_output}" ]]
+}

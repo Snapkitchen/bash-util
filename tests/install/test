@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+#
+# setup
+#
+
+echo >&2 "--- begin: bash-util install test ---"
+echo >&2 "loader: ${__TEST__BASH_UTIL__LOADER_FILE}"
+echo >&2 "lib file: ${__TEST__BASH_UTIL__LIB_FILE}"
+
+source "${__TEST__BASH_UTIL__LOADER_FILE}" -l "${__TEST__BASH_UTIL__LIB_FILE}" || {
+  echo 'failed sourcing bash util'
+  exit 64
+}
+
+#
+# test
+#
+
+{
+  bash_util__global__info | bash_util__log__info &&
+
+  bash_util__log__enable_verbose &&
+  bash_util__log__enable_debug &&
+  bash_util__log__enable_trace &&
+
+  echo 'hello world' | bash_util__log__verbose &&
+  echo 'hello world' | bash_util__log__warning &&
+  echo 'hello world' | bash_util__log__error &&
+  echo 'hello world' | bash_util__log__debug &&
+  echo 'hello world' | bash_util__log__trace
+} || {
+  echo 'failed testing bash util'
+  exit 64
+}
+
+echo >&2 "--- end: bash-util install test ---"

@@ -1,0 +1,354 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# option argument nargs 0
+# ==============================================================================
+
+@test "option argument nargs 0 produces error" {
+  local __test__expected_output="nargs value must be greater than 0"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+  
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__set_option_nargs 'parser_name' 'option_name' 0 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# option argument nargs 1
+# ==============================================================================
+
+@test "option argument nargs 1 stores value as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' 1
+  
+  bash_util__args__parse_args 'parser_name' '-o' 'value'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value' ]]
+}
+
+# ==============================================================================
+# option argument nargs 2
+# ==============================================================================
+
+@test "option argument nargs 2 stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' 2
+  
+  bash_util__args__parse_args 'parser_name' '-o' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}
+
+# ==============================================================================
+# option argument nargs ONE_OR_MORE
+# ==============================================================================
+
+@test "option argument nargs ONE_OR_MORE stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__ONE_OR_MORE}"
+  
+  bash_util__args__parse_args 'parser_name' '-o' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}
+
+# ==============================================================================
+
+@test "option argument nargs ONE_OR_MORE stores no args as nothing" {
+  local __test__expected_output="the following option args are required: option_name"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__ONE_OR_MORE}"
+
+  bash_util__args__parse_args 'parser_name'
+  
+  local __test__exit_code=
+  {
+    bash_util__args__get_option_value 'parser_name' 'option_name'
+  } || {
+    __test__exit_code=$?
+  }
+
+  [[ "${__test__exit_code}" = "${BASH_UTIL__CODE__NOT_FOUND}" ]]
+}
+
+# ==============================================================================
+# option argument nargs ZERO_OR_MORE
+# ==============================================================================
+
+@test "option argument nargs ZERO_OR_MORE stores no args as nothing" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__ZERO_OR_MORE}"
+
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__exit_code=
+  {
+    bash_util__args__get_option_value 'parser_name' 'option_name'
+  } || {
+    __test__exit_code=$?
+  }
+
+  [[ "${__test__exit_code}" = "${BASH_UTIL__CODE__NOT_FOUND}" ]]
+}
+
+# ==============================================================================
+
+@test "option argument nargs ZERO_OR_MORE stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__ZERO_OR_MORE}"
+
+  bash_util__args__parse_args 'parser_name' '-o' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}
+
+# ==============================================================================
+# option argument nargs OPTIONAL
+# ==============================================================================
+
+@test "option argument nargs OPTIONAL stores no args as nothing" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__OPTIONAL}"
+
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__exit_code=
+  {
+    bash_util__args__get_option_value 'parser_name' 'option_name'
+  } || {
+    __test__exit_code=$?
+  }
+
+  [[ "${__test__exit_code}" = "${BASH_UTIL__CODE__NOT_FOUND}" ]]
+}
+
+# ==============================================================================
+
+@test "option argument nargs OPTIONAL stores value directly" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__OPTIONAL}"
+
+  bash_util__args__parse_args 'parser_name' '-o' 'value_one'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+}
+
+# ==============================================================================
+# option argument nargs REMAINDER
+# ==============================================================================
+
+@test "option argument nargs REMAINDER stores no args as nothing" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__REMAINDER}"
+
+  bash_util__args__parse_args 'parser_name'
+
+  local __test__exit_code=
+  {
+    bash_util__args__get_option_value 'parser_name' 'option_name'
+  } || {
+    __test__exit_code=$?
+  }
+
+  [[ "${__test__exit_code}" = "${BASH_UTIL__CODE__NOT_FOUND}" ]]
+}
+
+# ==============================================================================
+
+@test "option argument nargs REMAINDER stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__REMAINDER}"
+
+  bash_util__args__parse_args 'parser_name' '-o' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}
+
+# ==============================================================================
+# option argument nargs PARSER
+# ==============================================================================
+
+@test "option argument nargs PARSER stores no args as nothing" {
+  local __test__expected_output="the following option args are required: option_name"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__PARSER}"
+  
+  local __test__exit_code=
+  {
+    bash_util__args__get_option_value 'parser_name' 'option_name'
+  } || {
+    __test__exit_code=$?
+  }
+
+  [[ "${__test__exit_code}" = "${BASH_UTIL__CODE__NOT_FOUND}" ]]
+}
+
+# ==============================================================================
+
+@test "option argument nargs PARSER stores values as list" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_name'
+
+  bash_util__args__set_option_short_name 'parser_name' 'option_name' '-o'
+
+  bash_util__args__set_option_nargs 'parser_name' 'option_name' "${BASH_UTIL__ARGS__NARGS__PARSER}"
+
+  bash_util__args__parse_args 'parser_name' '-o' 'value_one' 'value_two'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_option_value 'parser_name' 'option_name')"
+  
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}

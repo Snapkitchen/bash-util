@@ -1,0 +1,252 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='bash_util__args__create_parser'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# parser exists
+# ==============================================================================
+
+@test "returns GENERAL_ERROR when parser exists" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__GENERAL_ERROR}"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "prints stderr message when parser exists" {
+  # setup
+  local __test__expected_output="parser exists: 'var_name'"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__output=
+  local __test__exit_code=
+  {
+    __test__output="$("${__test__command}" 'var_name' 2>&1 1>/dev/null)"
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug output
+  echo >&2 "exit code: ${__test__exit_code}"
+  echo >&2 "expected output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__expected_output}"
+  echo >&2 "----------------"
+  echo >&2 "output"
+  echo >&2 "----------------"
+  echo >&2 "${__test__output}"
+  echo >&2 "----------------"
+
+  # assert
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# creates a parser
+# ==============================================================================
+
+@test "returns OK when creating a parser" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__OK}"
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+
+@test "creates the parent dict" {
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__exists 'var_name__ARGS__PARSER'
+}
+
+# ==============================================================================
+
+@test "adds the positionals key as dict" {
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_is_type 'var_name__ARGS__PARSER' 'POSITIONAL' "${BASH_UTIL__TYPE__DICT}"
+}
+
+# ==============================================================================
+
+@test "creates the positionals key dict" {
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_value_is_set 'var_name__ARGS__PARSER' 'POSITIONAL'
+}
+
+# ==============================================================================
+
+@test "adds the options key as dict" {
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_is_type 'var_name__ARGS__PARSER' 'OPTIONS' "${BASH_UTIL__TYPE__DICT}"
+}
+
+# ==============================================================================
+
+@test "creates the options key dict" {
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_value_is_set 'var_name__ARGS__PARSER' 'OPTIONS'
+}
+
+# ==============================================================================
+
+@test "adds the extras key as list" {
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_is_type 'var_name__ARGS__PARSER' 'EXTRAS' "${BASH_UTIL__TYPE__LIST}"
+}
+
+# ==============================================================================
+
+@test "creates the extras key list" {
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  bash_util__dict__key_value_is_set 'var_name__ARGS__PARSER' 'EXTRAS'
+}

@@ -1,0 +1,157 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+@test "returns FALSE on invalid message type" {
+  # setup
+  local expected_exit_code="${BASH_UTIL__CODE__FALSE}"
+  local actual_exit_code=
+  
+  # execute
+  {
+    _bash_util__log__message_type_valid 'invalid'
+    actual_exit_code=$?
+  } || actual_exit_code=$?
+  
+  # debug info on failure
+  echo >&2 "expected exit code: $expected_exit_code"
+  echo >&2 "exit code: $actual_exit_code"
+  
+  # assert
+  [[ $actual_exit_code -eq $expected_exit_code ]]
+}
+
+@test "returns TRUE for INFO message" {
+  # setup
+  local expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  local actual_exit_code=
+  
+  # execute
+  {
+    _bash_util__log__message_type_valid "${_BASH_UTIL__LOG__TYPE__INFO}"
+    actual_exit_code=$?
+  } || actual_exit_code=$?
+  
+  # debug info on failure
+  echo >&2 "expected exit code: $expected_exit_code"
+  echo >&2 "exit code: $actual_exit_code"
+  
+  # assert
+  [[ $actual_exit_code -eq $expected_exit_code ]]
+}
+
+@test "returns TRUE for VERBOSE message" {
+  # setup
+  local expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  local actual_exit_code=
+  
+  # execute
+  {
+    _bash_util__log__message_type_valid "${_BASH_UTIL__LOG__TYPE__VERBOSE}"
+    actual_exit_code=$?
+  } || actual_exit_code=$?
+  
+  # debug info on failure
+  echo >&2 "expected exit code: $expected_exit_code"
+  echo >&2 "exit code: $actual_exit_code"
+  
+  # assert
+  [[ $actual_exit_code -eq $expected_exit_code ]]
+}
+
+@test "returns TRUE for DEBUG message" {
+  # setup
+  local expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  local actual_exit_code=
+  
+  # execute
+  {
+    _bash_util__log__message_type_valid "${_BASH_UTIL__LOG__TYPE__DEBUG}"
+    actual_exit_code=$?
+  } || actual_exit_code=$?
+  
+  # debug info on failure
+  echo >&2 "expected exit code: $expected_exit_code"
+  echo >&2 "exit code: $actual_exit_code"
+  
+  # assert
+  [[ $actual_exit_code -eq $expected_exit_code ]]
+}
+
+@test "returns TRUE for WARNING message" {
+  # setup
+  local expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  local actual_exit_code=
+  
+  # execute
+  {
+    _bash_util__log__message_type_valid "${_BASH_UTIL__LOG__TYPE__WARNING}"
+    actual_exit_code=$?
+  } || actual_exit_code=$?
+  
+  # debug info on failure
+  echo >&2 "expected exit code: $expected_exit_code"
+  echo >&2 "exit code: $actual_exit_code"
+  
+  # assert
+  [[ $actual_exit_code -eq $expected_exit_code ]]
+}
+
+@test "returns TRUE for ERROR message" {
+  # setup
+  local expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  local actual_exit_code=
+  
+  # execute
+  {
+    _bash_util__log__message_type_valid "${_BASH_UTIL__LOG__TYPE__ERROR}"
+    actual_exit_code=$?
+  } || actual_exit_code=$?
+  
+  # debug info on failure
+  echo >&2 "expected exit code: $expected_exit_code"
+  echo >&2 "exit code: $actual_exit_code"
+  
+  # assert
+  [[ $actual_exit_code -eq $expected_exit_code ]]
+}
+
+@test "returns TRUE for TRACE message" {
+  # setup
+  local expected_exit_code="${BASH_UTIL__CODE__TRUE}"
+  local actual_exit_code=
+  
+  # execute
+  {
+    _bash_util__log__message_type_valid "${_BASH_UTIL__LOG__TYPE__TRACE}"
+    actual_exit_code=$?
+  } || actual_exit_code=$?
+  
+  # debug info on failure
+  echo >&2 "expected exit code: $expected_exit_code"
+  echo >&2 "exit code: $actual_exit_code"
+  
+  # assert
+  [[ $actual_exit_code -eq $expected_exit_code ]]
+}

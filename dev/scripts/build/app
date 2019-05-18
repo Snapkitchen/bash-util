@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set +H
+
+set -e
+
+set -o pipefail
+
+docker build \
+  --file 'dev/docker-images/app/Dockerfile' \
+  --tag 'bash-util/app' \
+  .

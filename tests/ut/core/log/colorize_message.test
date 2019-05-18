@@ -1,0 +1,144 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+@test "colors an error message" {
+  # setup
+  local color_prefix="${_BASH_UTIL__LOG__COLOR__ERROR}"
+  local color_suffix="${_BASH_UTIL__LOG__COLOR__RESET}"
+  local message="hello world"
+  local expected_output=
+  expected_output="$(printf "%b%s%b" "${color_prefix}" "${message}" "${color_suffix}")"
+  
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__colorize_message "${_BASH_UTIL__LOG__TYPE__ERROR}" "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  # assert
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "colors a debug message" {
+  # setup
+  local color_prefix="${_BASH_UTIL__LOG__COLOR__DEBUG}"
+  local color_suffix="${_BASH_UTIL__LOG__COLOR__RESET}"
+  local message="hello world"
+  local expected_output=
+  expected_output="$(printf "%b%s%b" "${color_prefix}" "${message}" "${color_suffix}")"
+  
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__colorize_message "${_BASH_UTIL__LOG__TYPE__DEBUG}" "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  # assert
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "colors a warning message" {
+  # setup
+  local color_prefix="${_BASH_UTIL__LOG__COLOR__WARNING}"
+  local color_suffix="${_BASH_UTIL__LOG__COLOR__RESET}"
+  local message="hello world"
+  local expected_output=
+  expected_output="$(printf "%b%s%b" "${color_prefix}" "${message}" "${color_suffix}")"
+  
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__colorize_message "${_BASH_UTIL__LOG__TYPE__WARNING}" "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  # assert
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "colors a verbose message" {
+  # setup
+  local color_prefix="${_BASH_UTIL__LOG__COLOR__VERBOSE}"
+  local color_suffix="${_BASH_UTIL__LOG__COLOR__RESET}"
+  local message="hello world"
+  local expected_output=
+  expected_output="$(printf "%b%s%b" "${color_prefix}" "${message}" "${color_suffix}")"
+  
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__colorize_message "${_BASH_UTIL__LOG__TYPE__VERBOSE}" "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  # assert
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "colors an info message" {
+  # setup
+  local color_prefix="${_BASH_UTIL__LOG__COLOR__INFO}"
+  local color_suffix="${_BASH_UTIL__LOG__COLOR__RESET}"
+  local message="hello world"
+  local expected_output=
+  expected_output="$(printf "%b%s%b" "${color_prefix}" "${message}" "${color_suffix}")"
+  
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__colorize_message "${_BASH_UTIL__LOG__TYPE__INFO}" "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  # assert
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}
+
+@test "colors a trace message" {
+  # setup
+  local color_prefix="${_BASH_UTIL__LOG__COLOR__TRACE}"
+  local color_suffix="${_BASH_UTIL__LOG__COLOR__RESET}"
+  local message="hello world"
+  local expected_output=
+  expected_output="$(printf "%b%s%b" "${color_prefix}" "${message}" "${color_suffix}")"
+  
+  # execute
+  local actual_output=
+  actual_output="$(_bash_util__log__colorize_message "${_BASH_UTIL__LOG__TYPE__TRACE}" "${message}")x"
+  
+  # debug output
+  echo >&2 "expected output: ${expected_output}"
+  echo >&2 "actual output: ${actual_output%x}"
+  
+  # assert
+  [[ "${actual_output%x}" = "${expected_output}" ]]
+}

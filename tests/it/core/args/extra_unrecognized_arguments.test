@@ -1,0 +1,87 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# parse_args
+# ==============================================================================
+
+@test "parse_args causes unrecognized option arguments to produce error" {
+  local __test__expected_output="unrecognized arguments: '-o' '--extra' '--arguments'"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__parse_args 'parser_name' '-o' '--extra' '--arguments' 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+
+@test "parse_args causes unrecognized positional arguments to produce error" {
+  local __test__expected_output="unrecognized arguments: 'some' 'extra' 'arguments'"
+
+  bash_util__args__create_parser 'parser_name'
+  
+  local __test__output=
+  {
+    __test__output="$(bash_util__args__parse_args 'parser_name' 'some' 'extra' 'arguments' 2>&1)"
+  } || {
+    true
+  }
+
+  [[ "${__test__output}" = *"${__test__expected_output}"* ]]
+}
+
+# ==============================================================================
+# parse_known_args
+# ==============================================================================
+
+@test "parse_known_args stores unrecognized arguments in the extras list" {
+  bash_util__args__create_parser 'parser_name'
+
+  bash_util__args__parse_known_args 'parser_name' '-o' 'some' '--extra' 'arguments'
+
+  local __test__list=
+  __test__list="$(bash_util__args__get_extras_value 'parser_name')"
+
+  local __test__output=
+
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 0)"
+  [[ "${__test__output}" = '-o' ]]
+
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 1)"
+  [[ "${__test__output}" = 'some' ]]
+
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 2)"
+  [[ "${__test__output}" = '--extra' ]]
+
+  __test__output="$(bash_util__list__get_element_value "${__test__list}" 3)"
+  [[ "${__test__output}" = 'arguments' ]]
+}

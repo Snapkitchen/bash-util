@@ -1,0 +1,52 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# multiple option arguments
+# ==============================================================================
+
+@test "multiple option arguments store values" {
+  bash_util__args__create_parser 'parser_name'
+  
+  bash_util__args__add_option 'parser_name' 'option_one'
+
+  bash_util__args__set_option_long_name 'parser_name' 'option_one' '--one'
+
+  bash_util__args__add_option 'parser_name' 'option_two'
+
+  bash_util__args__set_option_long_name 'parser_name' 'option_two' '--two'
+  
+  bash_util__args__parse_args 'parser_name' '--one' 'value_one' '--two' 'value_two'
+  
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_one')"
+  
+  [[ "${__test__output}" = 'value_one' ]]
+
+  local __test__output=
+  __test__output="$(bash_util__args__get_option_value 'parser_name' 'option_two')"
+  
+  [[ "${__test__output}" = 'value_two' ]]
+}

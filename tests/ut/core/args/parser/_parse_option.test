@@ -1,0 +1,108 @@
+#!/usr/bin/env bats
+
+#
+# setup
+#
+
+setup() {
+  # load common lib
+  load '../../../../lib/common'
+  
+  # load bash util
+  __test__load_bash_util
+  
+  # set command name
+  __test__command='_bash_util__args__parse_option'
+}
+
+#
+# tear down
+#
+
+# teardown() {
+# }
+
+#
+# test definitions
+#
+
+# ==============================================================================
+# null arg string
+# ==============================================================================
+
+@test "returns NOT_FOUND when arg string is null" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__NOT_FOUND}"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' ''
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# arg string without prefix chars
+# ==============================================================================
+
+@test "returns NOT_FOUND when arg string has no prefix chars" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__NOT_FOUND}"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' 'not-option'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
+
+# ==============================================================================
+# arg string contains space
+# ==============================================================================
+
+@test "returns NOT_FOUND when arg string contains a space" {
+  # setup
+  local __test__expected_exit_code="${BASH_UTIL__CODE__NOT_FOUND}"
+
+  bash_util__args__create_parser 'var_name'
+
+  # execute
+  local __test__exit_code=
+  {
+    "${__test__command}" 'var_name' '--arg string'
+    __test__exit_code=$?
+  } || {
+    __test__exit_code=$?
+  }
+
+  # debug info on failure
+  echo >&2 "expected exit code: ${__test__expected_exit_code}"
+  echo >&2 "exit code: ${__test__exit_code}"
+
+  # assert
+  [[ "${__test__exit_code}" -eq "${__test__expected_exit_code}" ]]
+}
