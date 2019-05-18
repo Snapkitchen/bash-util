@@ -122,4 +122,8 @@ $ make distcheck
 
 ## license
 
-© 2018-2019 Snap Kitchen, LLC. All Rights Reserved.
+© 2018-2019 Snap Kitchen, LLC.
+
+licensed under the MIT License
+
+see [LICENSE](../LICENSE)
